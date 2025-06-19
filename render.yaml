@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: go-dashboard-server
+    env: go
+    plan: free
+    buildCommand: go build -o main .
+    startCommand: ./main
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
