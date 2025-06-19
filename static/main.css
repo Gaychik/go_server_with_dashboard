@@ -1,0 +1,152 @@
+
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #f94144;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e1e5ee;
+    }
+    
+    h1 {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .client-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .client-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .client-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .client-name {
+      font-weight: 500;
+      color: var(--secondary);
+      font-size: 1.2rem;
+    }
+    
+    .total-requests {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-weight: 300;
+    }
+    
+    .stat-value {
+      font-weight: 500;
+    }
+    
+    .speed-value {
+      color: var(--success);
+    }
+    
+    .last-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 5px;
+      font-style: italic;
+      border-left: 3px solid var(--primary);
+    }
+    
+    .last-updated {
+      font-size: 0.8rem;
+      color: #adb5bd;
+      text-align: right;
+      margin-top: 0.5rem;
+    }
+    
+    .connection-status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      background: var(--success);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+    }
+   /* Сохраняем все предыдущие стили */
+    .client-card {
+      transition: all 0.3s ease;
+    }
+    .value-updated {
+      animation: pulse 0.5s ease;
+    }
+    @keyframes pulse {
+      0% { background-color: rgba(76, 201, 240, 0.1); }
+      100% { background-color: transparent; }
+    }

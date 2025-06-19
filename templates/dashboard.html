@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Server Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --dark: #1b263b;
+      --light: #f8f9fa;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #f94144;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e1e5ee;
+    }
+    
+    h1 {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .client-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .client-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .client-name {
+      font-weight: 500;
+      color: var(--secondary);
+      font-size: 1.2rem;
+    }
+    
+    .total-requests {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-weight: 300;
+    }
+    
+    .stat-value {
+      font-weight: 500;
+    }
+    
+    .speed-value {
+      color: var(--success);
+    }
+    
+    .last-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 5px;
+      font-style: italic;
+      border-left: 3px solid var(--primary);
+    }
+    
+    .last-updated {
+      font-size: 0.8rem;
+      color: #adb5bd;
+      text-align: right;
+      margin-top: 0.5rem;
+    }
+    
+    .connection-status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      background: var(--success);
+    }
+    
+    .updated-value {
+      animation: pulseHighlight 0.5s;
+    }
+    
+    @keyframes pulseHighlight {
+      0% { background-color: rgba(76, 201, 240, 0.3); }
+      100% { background-color: transparent; }
+    }
+    
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 Go Server Dashboard</h1>
+      <div class="connection-status" id="connection-status"></div>
+    </header>
+    
+    <div class="stats-container" id="stats-container">
+      <div class="empty-state">
+        <p>Ожидание подключения к серверу...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('stats-container');
+    const connectionStatus = document.getElementById('connection-status');
+    
+    function showError(message) {
+        container.innerHTML = `<div class="error-state"><p>${message}</p></div>`;
+        connectionStatus.style.backgroundColor = '#f94144';
+    }
+
+    function initSSE() {
+        const evtSource = new EventSource('/events');
+        
+        evtSource.onopen = function() {
+            connectionStatus.style.backgroundColor = '#4cc9f0';
+            console.log("SSE подключение установлено");
+        };
+        
+        evtSource.onmessage = function(e) {
+            console.log("Получены данные:", e.data);
+            try {
+                const data = JSON.parse(e.data);
+                if (Object.keys(data).length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>Нет активных клиентов</p></div>';
+                } else {
+                    renderData(data);
+                }
+            } catch (err) {
+                console.error('Ошибка обработки:', err);
+                showError('Ошибка формата данных');
+            }
+        };
+        
+        evtSource.onerror = function() {
+            showError('Ошибка подключения к серверу');
+        };
+    }
+
+    function renderData(data) {
+        let html = '';
+        for (const [client, info] of Object.entries(data)) {
+            html += `
+                <div class="client-card">
+                    <div class="client-header">
+                        <span class="client-name">${client}</span>
+                        <span class="total-requests">${info.Total} req</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Скорость:</span>
+                        <span class="stat-value speed-value">${info.Speed?.toFixed(2) || '0.00'} req/s</span>
+                    </div>
+                    <div class="last-message">${info.LastMsg || 'Нет сообщений'}</div>
+                    <div class="last-updated">Обновлено: ${new Date(info.LastTime).toLocaleString()}</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    initSSE();
+});
+  </script>
+</body>
+</html>
